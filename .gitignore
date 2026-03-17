@@ -1,0 +1,17 @@
+# Abhängigkeiten
+node_modules/
+
+# Modelle (große Binärdateien — separat herunterladen)
+models/
+
+# llama.cpp Build-Artefakte und kompilierte Binaries
+llama.cpp/build/
+llama.cpp/bin/
+binaries/
+
+# Logs
+*.log
+
+# Umgebungsvariablen
+.env
+.env.local

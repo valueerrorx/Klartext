@@ -1,0 +1,24 @@
+{
+  "name": "local-ai",
+  "version": "1.0.0",
+  "description": "launching local ai models in javascript",
+  "keywords": [
+    "local",
+    "ai",
+    "olama"
+  ],
+  "license": "ISC",
+  "author": "valueerror",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.0",
+    "express": "^5.2.1",
+    "llama-node": "^0.1.6",
+    "node-llama-cpp": "^3.14.2",
+    "nvm": "^0.0.4"
+  }
+}
