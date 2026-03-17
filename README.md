@@ -27,7 +27,7 @@ Aktives Modell in `config.js` über `SELECTED_MODEL_ID` auswählen.
 
 | ID | Dateiname | Größe | Geschwindigkeit | Qualität | Download |
 |----|-----------|-------|-----------------|----------|---------|
-| 1 | `rwkv7-2.9B-g1-q4_k_m.gguf` | 1.9 GB | < 10 s | befriedigend (de/en/fr) | [bartowski/RWKV-7-G1-2.9B-GGUF](https://huggingface.co/bartowski/RWKV-7-G1-2.9B-GGUF) |
+| 1 | `rwkv7-2.9B-g1-q4_k_m.gguf` | 1.9 GB | < 10 s | befriedigend (de/en/fr) | [shoumenchougou/RWKV7-G1d-2.9B-GGUF](https://huggingface.co/shoumenchougou/RWKV7-G1d-2.9B-GGUF/blob/main/rwkv7-g1d-2.9b-Q4_K_M.gguf) |
 | 2 | `Mistral-Nemo-Instruct-2407-Q6_K.gguf` | 9.4 GB | ~30 s | gut | [bartowski/Mistral-Nemo-Instruct-2407-GGUF](https://huggingface.co/bartowski/Mistral-Nemo-Instruct-2407-GGUF/blob/main/Mistral-Nemo-Instruct-2407-Q6_K.gguf) |
 | 3 | `Qwen2.5-7B-Instruct-Q6_K.gguf` | 5.8 GB | < 10 s | gut, passt komplett in 8 GB VRAM ✅ | [bartowski/Qwen2.5-7B-Instruct-GGUF](https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/blob/main/Qwen2.5-7B-Instruct-Q6_K.gguf) |
 
