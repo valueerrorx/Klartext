@@ -113,6 +113,19 @@ export function findWhitespaceErrors(text) {
     return errors.sort((a, b) => a.offset - b.offset);
 }
 
+// Returns only the sentence containing the character at `offset`, split on .!?\n
+function extractSentence(text, offset) {
+    const sentenceEnd = /[.!?\n]/g;
+    let start = 0;
+    let end   = text.length;
+    let match;
+    while ((match = sentenceEnd.exec(text)) !== null) {
+        if (match.index < offset) start = match.index + 1;
+        else { end = match.index + 1; break; }
+    }
+    return text.slice(start, end).trim();
+}
+
 // Builds a LanguageTool-compatible JSON response from a list of corrections
 export function buildLTResponse(text, language, corrections) {
     const ISSUE_META = {
@@ -135,7 +148,7 @@ export function buildLTResponse(text, language, corrections) {
                 offset: Math.min(c.offset, 20),
                 length: c.wordlength,
             },
-            sentence: text,
+            sentence: extractSentence(text, c.offset),
             type: { typeName: meta.typeName },
             rule: {
                 id:          'LOCAL_AI_SPELLCHECK',

@@ -55,6 +55,11 @@ Für AMD: `libvulkan_radeon`, für NVIDIA: `libvulkan_nvidia` / CUDA-Build.
 ```bash
 node spellcheck-server.js
 ```
+oder
+```bash
+npm start
+```
+
 
 Beim ersten Start wird das Modell geladen — das dauert je nach Größe 5–60 Sekunden.
 Danach ist der Server bereit und bleibt bis zum Beenden geladen.
@@ -66,7 +71,7 @@ Danach ist der Server bereit und bleibt bis zum Beenden geladen.
 ```bash
 curl -X POST http://localhost:9099/v2/check \
   -H "Content-Type: application/json" \
-  -d '{"text":"Das ist einn Test mit Fehlern.", "language":"de-DE"}'
+  -d '{"text":"Das ist einn Test mit Fehlern. Und dies ist ein anderer Satz der auch einen Fehla hat.", "language":"de-DE"}'
 ```
 
 Mit optionalen Prüfungs-Headern:
