@@ -1,3 +1,20 @@
+/**
+ * @license GPL LICENSE
+ * Copyright (c) 2021 Thomas Michael Weissel
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <http://www.gnu.org/licenses/>
+ */
+
 // Compares original and corrected text to produce a list of corrections,
 // then formats them as a LanguageTool-compatible JSON response.
 
@@ -50,12 +67,12 @@ export function findCorrections(input, output) {
         }
     }
 
-    // Backtrack → sequence of keep / delete / insert ops
+    // Backtrack → sequence of keep / delete / insert ops; keep stores both tokens for punct checks
     const ops = [];
     let i = n, j = m;
     while (i > 0 || j > 0) {
         if (i > 0 && j > 0 && inputTokens[i-1].norm === outputTokens[j-1].norm) {
-            ops.unshift({ type: 'keep' });
+            ops.unshift({ type: 'keep', inTok: inputTokens[i-1], outTok: outputTokens[j-1] });
             i--; j--;
         } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
             ops.unshift({ type: 'insert', out: outputTokens[j-1] });
@@ -66,17 +83,62 @@ export function findCorrections(input, output) {
         }
     }
 
-    // Adjacent delete+insert = word substitution (correction).
-    // Lone deletes/inserts are ignored — we only care about actual word replacements.
+    const TRAIL_PUNCT = /[.,!?;:]+$/;
+
+    // Reports a punctuation mismatch at the position right after a given token
+    const pushPunctCorrection = (inTok, outTok, corrections) => {
+        const wordLen  = inTok.raw.replace(TRAIL_PUNCT, '').length;
+        const inPunct  = inTok.raw.match(TRAIL_PUNCT)?.[0]  ?? '';
+        const outPunct = outTok.raw.match(TRAIL_PUNCT)?.[0] ?? '';
+        if (inPunct === outPunct) return;
+        corrections.push({
+            wrongword:     inPunct,
+            correctedword: outPunct,
+            wordlength:    inPunct.length,
+            offset:        inTok.offset + wordLen,
+            issueType:     'typographical',
+        });
+    };
+
+    // Collect consecutive delete/insert blocks and pair them positionally.
+    // A strict adjacent-only check misaligns when multiple words in a row differ,
+    // because the LCS backtracker groups all deletes before all inserts in each block.
     const corrections = [];
-    for (let k = 0; k < ops.length; k++) {
-        if (ops[k].type === 'delete' && k + 1 < ops.length && ops[k+1].type === 'insert') {
-            const inTok        = ops[k].inTok;
-            const outTok       = ops[k+1].out;
+    let k = 0;
+    while (k < ops.length) {
+        if (ops[k].type === 'keep') {
+            const { inTok, outTok } = ops[k];
+            // Kept word: check for case/typographical difference (norm stripped case, so "ich"==="Ich" in LCS)
+            const inWord  = inTok.raw.replace(TRAIL_PUNCT, '');
+            const outWord = outTok.raw.replace(TRAIL_PUNCT, '');
+            if (inWord !== outWord) {
+                corrections.push({
+                    wrongword:     inWord,
+                    correctedword: outWord,
+                    wordlength:    inWord.length,
+                    offset:        inTok.offset,
+                    issueType:     'typographical',
+                });
+            }
+            // Also check if punctuation suffix changed
+            pushPunctCorrection(inTok, outTok, corrections);
             k++;
-            const wordLen      = inTok.raw.replace(/[.,!?;:'"«»„"]+$/, '').length;
-            const wrongword    = input.substring(inTok.offset, inTok.offset + wordLen);
-            const correctedword = outTok.raw.replace(/[.,!?;:'"«»„"]+$/, '');
+            continue;
+        }
+        if (ops[k].type !== 'delete') { k++; continue; }
+
+        const deletes = [];
+        const inserts = [];
+        while (k < ops.length && ops[k].type === 'delete') deletes.push(ops[k++]);
+        while (k < ops.length && ops[k].type === 'insert') inserts.push(ops[k++]);
+
+        const count = Math.min(deletes.length, inserts.length);
+        for (let p = 0; p < count; p++) {
+            const inTok         = deletes[p].inTok;
+            const outTok        = inserts[p].out;
+            const wordLen       = inTok.raw.replace(TRAIL_PUNCT, '').length;
+            const wrongword     = input.substring(inTok.offset, inTok.offset + wordLen);
+            const correctedword = outTok.raw.replace(TRAIL_PUNCT, '');
             if (wrongword !== correctedword) {
                 corrections.push({
                     wrongword, correctedword,
@@ -85,6 +147,8 @@ export function findCorrections(input, output) {
                     issueType:  classifyError(wrongword, correctedword),
                 });
             }
+            // Also check if punctuation suffix was added/changed for this substituted word
+            pushPunctCorrection(inTok, outTok, corrections);
         }
     }
     return corrections;

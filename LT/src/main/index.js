@@ -15,18 +15,30 @@
  * If not, see <http://www.gnu.org/licenses/>
  */
 
-// Ports
-export const PORT              = 9099;   // Express API (LanguageTool-compatible)
-export const LLAMA_SERVER_PORT = 8081;   // internal llama-server
+import { app, BrowserWindow, Menu } from 'electron'
+import { join } from 'path'
 
-// Paths (relative to cwd)
-export const MODEL_DIR = 'models';
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1280,
+    height: 800,
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      spellcheck: false
+    }
+  })
 
-// Active model — change this number to switch models
-export const SELECTED_MODEL_ID = 3;
+  Menu.setApplicationMenu(null)
 
-export const MODELS = {
-    1: { fileName: 'rwkv7-2.9B-g1-q4_k_m.gguf'              },   // 1.9 GB  — <10s befriedigend (de/en/fr/…)
-    2: { fileName: 'Mistral-Nemo-Instruct-2407-Q6_K.gguf'    },  // 9.4 GB  — ~30s gut (passt nicht ganz in VRAM)
-    3: { fileName: 'Qwen2.5-7B-Instruct-Q6_K.gguf'           },  // 5.8 GB  — <10s befriedigend (komplett auf GPU)
-};
+  if (process.env.NODE_ENV === 'development') {
+    win.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  } else {
+    win.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+}
+
+app.whenReady().then(createWindow)
+
+app.on('window-all-closed', () => app.quit())
