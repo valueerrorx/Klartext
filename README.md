@@ -89,6 +89,29 @@ Unterstützte Sprachen: `de-DE`, `de-AT`, `de-CH`, `en-US`, `en-GB`, `it-IT`, `f
 
 ---
 
+## Klartext — Test-Editor
+
+Im Unterordner `LT/` befindet sich **Klartext**, ein Electron-basierter Editor zum direkten Testen des Servers.
+Er zeigt Fehler farbkodiert als Unterstreichungen im Text und listet sie in einer Seitenleiste auf.
+
+```bash
+cd LT
+npm install   # einmalig
+npm run dev
+```
+
+Oder direkt aus dem Projektroot:
+
+```bash
+npm run klartext
+```
+
+> Der Spellcheck-Server muss laufen (`npm start` im Projektroot), bevor der Editor geöffnet wird.
+
+![Klartext Editor](./img/klartext.png)
+
+---
+
 ## Projektstruktur
 
 ```
@@ -97,6 +120,7 @@ config.js              — Modelle, Ports, Pfade (hier SELECTED_MODEL_ID ändern
 llm-server.js          — llama-server starten/stoppen
 inference.js           — Prompt aufbauen, HTTP-Call, Rohtext bereinigen
 diff.js                — Word-Diff (LCS), Whitespace-Check, LT-Response bauen
+LT/                    — Klartext Test-Editor (Electron + Vue)
 models/                — GGUF-Modelldateien (nicht im Git)
 llama.cpp/             — llama.cpp Quellcode + Build-Artefakte (nicht im Git)
 ```

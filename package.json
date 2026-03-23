@@ -14,7 +14,8 @@
   "type": "module",
   "main": "spellcheck-server.js",
   "scripts": {
-    "start": "node spellcheck-server.js"
+    "start": "node spellcheck-server.js",
+    "klartext": "npm run dev --prefix LT"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.0",
